@@ -449,7 +449,7 @@ function checkBox($name, $init_val, $onchange = false) {
 </fieldset>
 
 <fieldset><legend>IDE Integration</legend>
-    <label for="path_search">Path replacement:</label> <input type="text" name="path_search" value="<?php print $path_search ?>" style="width: 140px;" /> -&gt; <input type="text" name="path_replace" value="<?php print $path_replace ?>" style="width: 140px;" /> <br/>
+    <label for="path_search">Path replacement:</label> <input type="text" name="path_search" value="<?php print $path_search ?>" style="width: 190px;" /> -&gt; <input type="text" name="path_replace" value="<?php print $path_replace ?>" style="width: 190px;" /> <br/>
     <label for="win_paths_cb">Windows paths:</label> <?php print checkBox('win_paths', $win_paths); ?> <br/>
     <label for="use_line_numbers_cb">Use line numbers:</label> <?php print checkBox('use_line_numbers', $use_line_numbers, 'document.getElementById(\'line_separator_s\').style.display = this.checked ? \'\' : \'none\';'); ?> <br/>
     <span id="line_separator_s"<?php echo ($use_line_numbers ? '' : ' style="display: none;"'); ?>><label for="line_separator">Line number separator:</label> <input type="text" name="line_separator" value="<?php print $line_separator ?>" maxlength="1" /></span>
