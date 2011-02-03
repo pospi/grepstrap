@@ -1,0 +1,67 @@
+html, body, input, textarea, td {
+    color:#4A3836;
+    font-family:"trebuchet ms",helvetica,tahoma,sans-serif;
+    font-size:11px;
+}
+h1, h2, h3, h4 {
+    color:#0093D0;
+    font-family:georgia,"palatino linotype",palatino,serif;
+}
+input, textarea {
+    background: #EEF;
+    border: 1px solid #336;
+    width: 400px;
+    padding: 2px;
+}
+label {
+    display: block;
+    float: left;
+    width: 200px;
+    text-align: right;
+    padding-right: 5px;
+}
+fieldset {
+    text-align: left;
+    width: 700px;
+    border: 1px solid #EFEFEF;
+    padding: 10px;
+}
+legend {
+    font-size: 12px;
+    font-weight: bold;
+}
+span.h {
+    background: #FFFC79;
+}
+a {
+    color: #5F5FFF;
+    text-decoration: none;
+}
+#protocol_help {
+    width: 400px;
+    border: 1px solid #EFEFEF;
+    margin: 3px;
+    display: none;
+}
+#protocol_help pre {
+    background: #EEF;
+}
+#protocol_help label {
+    width: 90px;
+	padding-right: 2px;
+}
+#protocol_help input {
+    width: 250px;
+}
+span#protocol1, span#protocol2, span#protocol3,
+span#protocol5, span#protocol6, span#protocol7, span#protocol8 {
+    color: #999966;
+    font-weight: bold;
+}
+span#protocol4 {
+    color: #669966;
+    font-weight: bold;
+}
+td pre { margin: 0; }
+td { font-family: monospace; padding: 0 5px; white-space: nowrap; }
+tr.a { background: #F3F3FF; }
