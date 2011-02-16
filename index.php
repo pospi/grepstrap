@@ -146,6 +146,7 @@ if (!empty($_POST['pattern'])) {
 }
 
 $SEARCH_STR = '';
+$SEARCH_CMD = '';		// for outputting later
 
 $result_count = 0;
 $outputted_result_count = 0;
@@ -157,12 +158,6 @@ $execution_time = 0;
 $search_basepath = formVar('path1') . formVar('path2');
 
 $regex_special_chars = '\\/^.$|()[]*+?{}-';
-
-// filtering
-$filters = array();
-if (isset($_GET['filter'])) {
-	$filters = explode(',', $_GET['filter']);
-}
 
 if (!empty($_GET['pattern']) && !empty($search_basepath)) {
 	set_time_limit(0);          // for long searches
@@ -263,6 +258,8 @@ if (!empty($_GET['pattern']) && !empty($search_basepath)) {
 		$start = microtime(true);
 		exec($cmd, $output);
 		$execution_time = microtime(true) - $start;
+		
+		$SEARCH_CMD = $cmd;
 
 		$parsing_results = true;        // get search results, then get line counts after flagging false
 
@@ -278,9 +275,6 @@ if (!empty($_GET['pattern']) && !empty($search_basepath)) {
 				if (count($matches) == 4) {
 					++$result_count;
 
-					if (count($filters) && !in_array($result_count, $filters)) {
-						continue;
-					}
 					++$outputted_result_count;
 
 					$result_file = basename($matches[1]);
@@ -390,6 +384,7 @@ function checkBox($name, $init_val, $onchange = false) {
 <head>
 <title>grep browser frontend<?php print $pattern ? ' - ' . $pattern : ''; ?></title>
 <link rel="stylesheet" type="text/css" href="grep.css" />
+<script type="text/javascript" src="3rdparty/mootools-core-1.3-ajax.js"></script>
 <script type="text/javascript" src="grep.js"></script>
 </head>
 <body>
@@ -397,8 +392,9 @@ function checkBox($name, $init_val, $onchange = false) {
     <u>grep frontend v2</u><br/>
     <a onclick="document.getElementById('protocol_help').style.display = 'block';" href="#setup">What is this?</a><br/>
     <input id="poll" type="button" onclick="togglePolling();" style="width: auto; border: 0; padding: 0; cursor: pointer; margin-top: 0.5em;" value="Toggle Polling" />
-    <span id="poll_amt_span"><input id="poll_amt" type="text" maxlength="3" style="width: 1em; padding: 0; margin: 0 1px;" />s</span>
-    <script type="text/javascript">
+    <span id="poll_amt_span"><input id="poll_amt" type="text" maxlength="3" style="width: 2em; padding: 0; margin: 0 1px;" />s</span><br />
+	<a href="?clear">Reset form to defaults</a>
+	<script type="text/javascript">
         if (getCookie('polling')) {
             togglePolling();    // activate initially
         } else {
@@ -410,7 +406,7 @@ function checkBox($name, $init_val, $onchange = false) {
 <form method="post" name="searchForm">
 <fieldset><legend>Search</legend>
     <label for="pattern">Search for:</label> <input type="text" name="pattern" value="<?php print $pattern ?>" /> <br/>
-    <label for="path1">Search path:</label> <input type="text" name="path1" value="<?php print $path1 ?>" style="width: 230px; text-align: right; border-right: 1px dashed;" /><input type="text" name="path2" value="<?php print $path2 ?>"  style="width: 170px; border-left: none;" /> <br/>
+    <label for="path1">Search path:</label> <input id="searchpath1" type="text" name="path1" value="<?php print $path1 ?>" style="width: 230px; text-align: right; border-right: 1px dashed;" /><input id="searchpath2" type="text" name="path2" value="<?php print $path2 ?>"  style="width: 170px; border-left: none;" /> <br/>
     <label for="case_sensitive_cb">Case sensitive:</label> <?php print checkBox('case_sensitive', $case_sensitive); ?> <br/>
     <label for="line_stats_cb">Show line counts (doubles search time):</label> <?php print checkBox('line_stats', $line_stats); ?> <br/>
     <label for="regexp_search_cb">Regular expressions:</label> <?php print checkBox('regexp_search', $regexp_search); ?> <br/>
@@ -419,12 +415,14 @@ function checkBox($name, $init_val, $onchange = false) {
 
 <?php
     if ($SEARCH_STR) {
-        print '<fieldset style="width: auto;"><legend>Results: ' . $result_count . ' matches (' . ($line_stats ? 'searched ' . $file_count . ' files / ' . $line_count . ' lines ' : '') . 'in ' . number_format($execution_time, 2) . 's)</legend>';
-        if (!count($filters)) {
-            print '<a href="#" onclick="filterResults(); return false;" style="background: #DDD; padding: 2px;">Show checked only</a>';
-        } else {
-            print '<a href="#" onclick="unfilterResults(); return false;" style="background: #DDD; padding: 2px;">(filtered) Show all</a>';
-        }
+        print '<fieldset style="width: auto;"><legend><span id="showCmd">Results</span>: ' . $result_count . ' matches (' . ($line_stats ? 'searched ' . $file_count . ' files / ' . $line_count . ' lines ' : '') . 'in ' . number_format($execution_time, 2) . 's)</legend>';
+		if ($SEARCH_CMD) {
+			print '<div id="searchCmd" style="display: none;">' . $SEARCH_CMD . '</div>';
+		}
+
+        print '<a id="filterOn" href="#" onclick="filterResults(); return false;" style="background: #DDD; padding: 2px;">Show checked only</a>';
+        print '<a id="filterOff" href="#" onclick="unfilterResults(); return false;" style="background: #DDD; padding: 2px; display: none;">(filtered) Show all</a>';
+
         print '<table cellpadding="0" cellspacing="0"><tbody>' . $SEARCH_STR . '</tbody></table>';
         print '</fieldset>';
     } else if (isset($_GET['search'])) {
@@ -441,10 +439,9 @@ function checkBox($name, $init_val, $onchange = false) {
 <fieldset><legend>Options</legend>
     <label for="types">Filetypes to search (separate by newlines):</label> <textarea name="types" rows="<?php print $types_rows ?>"><?php print $types ?></textarea> <br/>
     <label for="exclude_types">Filetypes to exclude (separate by newlines):</label> <textarea name="exclude_types" rows="<?php print $exclude_types_rows ?>"><?php print $exclude_types ?></textarea> <br/>
-    <label for="ignore">Ignore folders (relative to search path, separate by newlines):</label> <textarea name="ignore" rows="<?php print $ignore_rows ?>"><?php print $ignore ?></textarea> <br/>
+    <label for="ignore">Ignore folders (relative to search path, separate by newlines):</label> <textarea id="ignorePaths" name="ignore" rows="<?php print $ignore_rows ?>"><?php print $ignore ?></textarea> <br/>
     <label for="filenames_only_cb">Only show filenames:</label> <?php print checkBox('filenames_only', $filenames_only); ?> <br/>
     <label for="trim_output_lines_cb">Trim matching lines:</label> <?php print checkBox('trim_output_lines', $trim_output_lines); ?> <br/>
-    <label><a href="?clear">Reset form to defaults</a></label> <br/>
     <center><input type="submit" name="search" value="Search" style="width: auto;" /></center>
 </fieldset>
 

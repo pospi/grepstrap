@@ -17,7 +17,7 @@ $default_path_base  = '/var/www/html/';
 $default_path_extra = '';
 
 $case_sensitive = false;
-$line_stats = true;
+$line_stats = false;
 $regexp_search = false;
 
 

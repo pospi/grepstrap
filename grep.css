@@ -65,3 +65,12 @@ span#protocol4 {
 td pre { margin: 0; }
 td { font-family: monospace; padding: 0 5px; white-space: nowrap; }
 tr.a { background: #F3F3FF; }
+#pathIndicator { position: absolute; display: block; width: 394px; padding: 2px; border: 1px solid #090; background: #EFE; border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px; }
+#pathIndicator a { display: block; float: left; padding-right: 1em; text-decoration: none; cursor: pointer; }
+#pathIndicator a:hover { text-decoration: underline; }
+#pathIndicator.error { border: 1px solid #900; background: #FEE; font-weight: bold; text-align: center; }
+#pathIndicator.error a { display: inline; float: none; color: #900; cursor: default; }
+#pathIndicator.error a:hover { text-decoration: none; }
+
+#showCmd { cursor: pointer; }
+#searchCmd { font-family: monospace; color: #900; padding-bottom: 1em; }
