@@ -258,7 +258,7 @@ if (!empty($_GET['pattern']) && !empty($search_basepath)) {
 		$start = microtime(true);
 		exec($cmd, $output);
 		$execution_time = microtime(true) - $start;
-		
+
 		$SEARCH_CMD = $cmd;
 
 		$parsing_results = true;        // get search results, then get line counts after flagging false
@@ -280,11 +280,10 @@ if (!empty($_GET['pattern']) && !empty($search_basepath)) {
 					$result_file = basename($matches[1]);
 					$result_line = $matches[2];
 
+					$matches[1] = str_replace(formVar('path_search'), formVar('path_replace'), $matches[1]);
 					if (formVar('win_paths')) {
 						$matches[1] = str_replace('/', '\\', $matches[1]);
 					}
-
-					$matches[1] = str_replace(formVar('path_search'), formVar('path_replace'), $matches[1]);
 					$matches[1] = htmlentities($matches[1]);
 
 					$result_path = $matches[1];
