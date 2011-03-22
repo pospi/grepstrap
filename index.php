@@ -13,6 +13,10 @@
 
 require_once('includes.inc.php');
 
+// We must also ensure we are running in UTF-8 or
+// escapeshellarg() will kill our UTF-8 characters
+setlocale(LC_CTYPE, "en_US.UTF-8");
+
 //==================================================================================
 //==================================================================================
 
@@ -165,7 +169,7 @@ if (!empty($_GET['pattern']) && !empty($search_basepath)) {
 
 	$cmd_str_template = 'P=' . escapeshellarg($search_basepath) . ';'
 					 . ' find $P -follow %s%s -exec'
-					 . ' grep' . (formVar('case_sensitive') ? '' : ' -i') . ' -H -n -P %s {} \\;;';
+					 . ' grep' . (formVar('case_sensitive') ? '' : ' -i') . ' -H -n -P -a %s {} \\;;';
 	if (formVar('line_stats')) {
 		$cmd_str_template .= ' echo "---BREAK---";'
 					 . ' find $P -follow %s%s -exec'
@@ -360,7 +364,7 @@ $types = htmlentities(formVar('types'));
 $types_rows = count(explode("\n", $types));
 $exclude_types = htmlentities(formVar('exclude_types'));
 $exclude_types_rows = count(explode("\n", $exclude_types));
-$pattern = htmlentities(formVar('pattern'));
+$pattern = formVar('pattern');
 $path_search = htmlentities(formVar('path_search'));
 $path_replace = htmlentities(formVar('path_replace'));
 $win_paths = formVar('win_paths');
@@ -382,6 +386,7 @@ function checkBox($name, $init_val, $onchange = false) {
 <html>
 <head>
 <title>grep browser frontend<?php print $pattern ? ' - ' . $pattern : ''; ?></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
 <link rel="stylesheet" type="text/css" href="grep.css" />
 <script type="text/javascript" src="3rdparty/mootools-core-1.3-ajax.js"></script>
 <script type="text/javascript" src="grep.js"></script>
@@ -402,9 +407,10 @@ function checkBox($name, $init_val, $onchange = false) {
     </script>
 </div>
 <center>
-<form method="post" name="searchForm">
+<form accept-charset="UTF-8" method="post" name="searchForm">
+<input name="_utf8" type="hidden" value="&#9731;" />
 <fieldset><legend>Search</legend>
-    <label for="pattern">Search for:</label> <input type="text" name="pattern" value="<?php print $pattern ?>" /> <br/>
+    <label for="pattern">Search for:</label> <input type="text" name="pattern" value="<?php print htmlentities($pattern, ENT_COMPAT, 'UTF-8') ?>" /> <br/>
     <label for="path1">Search path:</label> <input id="searchpath1" type="text" name="path1" value="<?php print $path1 ?>" style="width: 230px; text-align: right; border-right: 1px dashed;" /><input id="searchpath2" type="text" name="path2" value="<?php print $path2 ?>"  style="width: 170px; border-left: none;" /> <br/>
     <label for="case_sensitive_cb">Case sensitive:</label> <?php print checkBox('case_sensitive', $case_sensitive); ?> <br/>
     <label for="line_stats_cb">Show line counts (doubles search time):</label> <?php print checkBox('line_stats', $line_stats); ?> <br/>
