@@ -159,7 +159,7 @@ $line_count = 0;
 
 $execution_time = 0;
 
-$search_basepath = formVar('path1') . formVar('path2');
+$search_basepath = rtrim(formVar('path1') . formVar('path2'), '/');
 
 $regex_special_chars = '\\/^.$|()[]*+?{}-';
 
@@ -200,10 +200,14 @@ if (!empty($_GET['pattern']) && !empty($search_basepath)) {
 		foreach($temp as $path) {
 			$path = trim($path);
 			if ($path) {
-				$search_ignore_paths[] = '-path "$P' . trim(escapeshellarg('/' . $path), '\'') . '"';
+				if (substr($path, 0, 1) != '*') {	// handle static paths relative to the base path
+					$path = '$P/' . $path;
+				}
+				$search_ignore_paths[] = '-path "' . trim(escapeshellarg($path), '\'') . '"';
 			}
 		}
 		if (sizeof($search_ignore_paths)) {
+
 			$search_ignore_string = '-type d \( ' . implode(' -o ', $search_ignore_paths) . ' \) -prune -o ';
 		}
 
@@ -327,9 +331,11 @@ if (!empty($_GET['pattern']) && !empty($search_basepath)) {
 					}
 
 					// highlighting done!
-
-					if (formVar('trim_output_lines')) {
+					$trimLines = formVar('trim_output_lines');
+					if ($trimLines === true) {
 						$match_string = trim($match_string);
+					} else if ($trimLines) {
+						$match_string = rtrim($match_string);
 					}
 
 					$search_str_template = '<tr%s><td>%s</td><td style="background: #DDD"><input style="width: auto; height: 1em;" type="checkbox" name="cb' . $result_count . '" /></td><td>%s</td><td><b>%s</b>:</td><td><pre>%s</pre></td></tr>';
@@ -386,7 +392,7 @@ function checkBox($name, $init_val, $onchange = false) {
 <html>
 <head>
 <title>grep browser frontend<?php print $pattern ? ' - ' . $pattern : ''; ?></title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <link rel="stylesheet" type="text/css" href="grep.css" />
 <script type="text/javascript" src="3rdparty/mootools-core-1.3-ajax.js"></script>
 <script type="text/javascript" src="grep.js"></script>
@@ -444,7 +450,7 @@ function checkBox($name, $init_val, $onchange = false) {
 <fieldset><legend>Options</legend>
     <label for="types">Filetypes to search (separate by newlines):</label> <textarea name="types" rows="<?php print $types_rows ?>"><?php print $types ?></textarea> <br/>
     <label for="exclude_types">Filetypes to exclude (separate by newlines):</label> <textarea name="exclude_types" rows="<?php print $exclude_types_rows ?>"><?php print $exclude_types ?></textarea> <br/>
-    <label for="ignore">Ignore folders (relative to search path, separate by newlines):</label> <textarea id="ignorePaths" name="ignore" rows="<?php print $ignore_rows ?>"><?php print $ignore ?></textarea> <br/>
+    <label for="ignore">Ignore folders (relative to search directory, or use shell wildcards as with <em>*/.git</em>, etc):</label> <textarea id="ignorePaths" name="ignore" rows="<?php print $ignore_rows ?>"><?php print $ignore ?></textarea> <br/>
     <label for="filenames_only_cb">Only show filenames:</label> <?php print checkBox('filenames_only', $filenames_only); ?> <br/>
     <label for="trim_output_lines_cb">Trim matching lines:</label> <?php print checkBox('trim_output_lines', $trim_output_lines); ?> <br/>
     <center><input type="submit" name="search" value="Search" style="width: auto;" /></center>

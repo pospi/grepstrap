@@ -25,19 +25,21 @@ $regexp_search = false;
 
 // Any paths (relative to search path) which should not be scanned.
 // Anything which can be added here, should be - it will make searches faster.
+// You can also use shell wildcards if you start the path with an asterisk.
 $ignore_paths = array(
-	
+	'*/.svn',
+	'*/.git',
 );
 // Filetypes to search within
 $include_types = array(
-	
+
 );
 // Filetypes which should never be searched
 $exclude_types = array(
 	'bak'
 );
 $show_filenames_only = true;
-$trim_output_lines = false;
+$trim_output_lines = 1;				// false = off, 1 = right trim, true = both
 
 
 // --- IDE INTEGRATION --- (@see http://github.com/pospi/pdebug)
