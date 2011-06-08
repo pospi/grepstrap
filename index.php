@@ -201,7 +201,7 @@ if (!empty($_GET['pattern']) && !empty($search_basepath)) {
 			$path = trim($path);
 			if ($path) {
 				if (substr($path, 0, 1) != '*') {	// handle static paths relative to the base path
-					$path = '$P/' . $path;
+					$path = '$P/' . rtrim($path, '/') . '/*';
 				}
 				$search_ignore_paths[] = '-path "' . trim(escapeshellarg($path), '\'') . '"';
 			}
